@@ -20,48 +20,64 @@ void drive_robot(float lin_x, float ang_z)
     
 }
 
+ bool white_ball_side(sensor_msgs::Image img, int column_size, bool picture_side, int column_quartier)
+    {
+            int check_column_size = 0;
+            int row = 0;
+            int white_pixel = 255;
+            while(i < img.height)
+        {
+            for( int column = column_quartier;column < column_size; column+=3)
+            
+            {   check_column_size = column + 2; // checking the third value of the RGB pixel if it does not depass left, right, center boundary size boundary
+                if( check_column_size < column_size){
+                
+                    if( (img.data[column] == white_pixel) and (img.data[column+1] == white_pixel) 
+                    and (img.data[column + 2] == white_pixel) )
+                    {
+                        picture_side = true;
+                        return picture_side;
+                    }
+                }
+                
+            }
+            
+            row++;
+            if( row < img.height){
+                img.data + img.step;
+            }
+            
+            
+        }
+        
+    }
+
 // This callback function continuously executes and reads the image data
 void process_image_callback(const sensor_msgs::Image img)
 {
 
-    int white_pixel = 255;
-   
-    
 
     // TODO: Loop through each pixel in the image and check if there's a bright white one
     // Then, identify if this pixel falls in the left, mid, or right side of the image
     // Depending on the white ball position, call the drive_bot function and pass velocities to it
     // Request a stop when there's no white ball seen by the camera
     int size = img.height * img.width * 3; // each pixel having 3 values.
-    int left_size = img.width / 3;
-    int right_size_begin = 2 * img.width / 3;
+    int left_side = img.width / 3;
+    int right_side_begin = 2 * img.width / 3;
+    
+    int column_quartier_left = 0;
+    int column_quartier_center = left_side;
+    int column_quartier_right = right_side_begin;
     
     bool left = false;
     bool right = false;
     bool center  = false;
     
-    for (int i = 0; i < size;i+=3)
-    {
-        if( (img.data[i] == white_pixel) and (img.data[i+1] == white_pixel) and (img.data[i+2] == white_pixel) )
-        {
-            if (i >= 0 and i < left_size)
-            {
-                left = true;
-                break;
-            }
-            else if(i >= left_size and i < right_size_begin)
-            {
-                center = true;
-                break;
-            }
-            else if( i >= right_size_begin and i < size)
-            {
-                right = true;
-                break;
-            }
-            
-        }          
-    }
+    // checking for white pixels
+    left = white_ball_side(img, left_side, left, column_quartier_left);
+    right = white_ball_side(img,img.width, right, column_quartier_right);
+    center = white_ball_side(img,right_side_begin, center, column_quartier_center);
+   
    
     if (left){
         drive_robot(0.0, 0.5); // move robot to the left
