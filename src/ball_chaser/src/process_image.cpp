@@ -20,35 +20,38 @@ void drive_robot(float lin_x, float ang_z)
     
 }
 
- bool white_ball_side(sensor_msgs::Image img, int column_size, bool picture_side, int column_quartier)
+ bool white_ball_side(sensor_msgs::Image img, int column_end, bool picture_side, int column_begin)
     {
             int check_column_size = 0;
-            int row = 0;
+            int picture_size = img.height * img.width * 3;
             int white_pixel = 255;
-            while(i < img.height)
-        {
-            for( int column = column_quartier;column < column_size; column+=3)
             
-            {   check_column_size = column + 2; // checking the third value of the RGB pixel if it does not depass left, right, center boundary size boundary
-                if( check_column_size < column_size){
+           for(int row = 0;row < picture_size; row++)
+        {
+           
+            for( int column = column_begin;column < column_end; column+=3)
+            
+            {   // checking the third value of the RGB pixel if it does not depass left, right, center boundary size boundary
+                check_column_size = column + 2; 
                 
-                    if( (img.data[column] == white_pixel) and (img.data[column+1] == white_pixel) 
-                    and (img.data[column + 2] == white_pixel) )
+                if( check_column_size < column_end){
+                
+                    if( (img.data[column + row] == white_pixel) && (img.data[column +row + 1] == white_pixel ) 
+                    && (img.data[column +row + 2] == white_pixel) )
                     {
                         picture_side = true;
-                        return picture_side;
+                        break;
                     }
                 }
                 
             }
-            
-            row++;
-            if( row < img.height){
-                img.data + img.step;
+            if (picture_side == true)
+            {
+                break;
             }
-            
-            
+              
         }
+        return picture_side;
         
     }
 
@@ -65,30 +68,36 @@ void process_image_callback(const sensor_msgs::Image img)
     int left_side = img.width / 3;
     int right_side_begin = 2 * img.width / 3;
     
-    int column_quartier_left = 0;
-    int column_quartier_center = left_side;
-    int column_quartier_right = right_side_begin;
+    int column_begin_left = 0;
+    int column_begin_center = left_side;
+    int column_begin_right = right_side_begin;
     
     bool left = false;
     bool right = false;
     bool center  = false;
     
     // checking for white pixels
-    left = white_ball_side(img, left_side, left, column_quartier_left);
-    right = white_ball_side(img,img.width, right, column_quartier_right);
-    center = white_ball_side(img,right_side_begin, center, column_quartier_center);
+    // white_ball_side(sensor_msgs::Image img, int column_end, bool picture_side, int column_begin)
+    
+    left = white_ball_side(img, left_side, false, column_begin_left);
+    right = white_ball_side(img,img.width, false, column_begin_right);
+    center = white_ball_side(img,right_side_begin, false, column_begin_center);
    
    
-    if (left){
+    if (left == true){
         drive_robot(0.0, 0.5); // move robot to the left
     }
         
-    else if (center){
+    else if (center == true){
         drive_robot(0.5, 0.0); // move the robot forward.
     }    
         
-    else if (right){
+    else if (right == true){
         drive_robot(0.0, -0.5); // move robot to the right
+    }
+    else if( left != true && right != true && center != true)
+    {
+        drive_robot(0.0, 0.0); // stop robot no white ball found;
     }
        
 }
