@@ -24,7 +24,7 @@ bool handle_drive_request_callback(ball_chaser::DriveToTarget::Request& req,
         motor_command_publisher.publish(motor_command);
         
         
-        res.msg_feedback = "velocity at linea x is: " + std::to_string(motor_command.linear.x) + "velocity at angular z is: " 
+        res.msg_feedback = "velocity at linear x is: " + std::to_string(motor_command.linear.x) + "velocity at angular z is: " 
         +std::to_string(motor_command.angular.z);
         ROS_INFO_STREAM(res.msg_feedback);
    
