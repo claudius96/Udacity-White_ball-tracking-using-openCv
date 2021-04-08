@@ -36,43 +36,41 @@ void process_image_callback(const sensor_msgs::Image img)
     int white_pixel = 255;
     int left_pos = img.width / 3;
     int center_end = 2 * img.width / 3;
+    int array_size = img.width * img.height * 3;
     
     
-    for (int i = 0; i < img.height; i++)
+     for (int i = 0; i < (img.height * img.step); i+=3)
     {
-        for (int j = 0; i < img.width; j++)
+        if (img.data[i] == white_pixel && 
+            img.data[i+1] == white_pixel && 
+            img.data[i+2] == white_pixel)
         {
-           index = (i * img.width +j)*3; 
-           if(img.data[index] == white_pixel)
-           {
-                position = j;
-                white_ball = true;
-                break;
-           }
-        }
-        if(white_ball)
-        {
+            white_ball = true;
+          	index = int(i/3) % img.width;
             break;
         }
-        
     }
     
-   if( position >= 0 && position < left_pos)
+   if( white_ball)
    {
-    drive_robot(0.1, 0.5); // move left
+        if (index < left_pos)
+        {
+           drive_robot(0.1, 0.5); // move left 
+        }
+        else if (index >= left_pos && index < center_end)
+        {
+            drive_robot(0.5, 0.0); //move forward
+        }
+        else if (index >= center_end && index < img.width)
+        {
+            drive_robot(0.1, -0.5); //move right
+        }
+          
    }
-   else if (position >= left_pos && position < center_end)
-   {
-    drive_robot(0.5, 0.0); // move forward
+   else {
+    drive_robot(0.0, 0.0); // don't move
    }
-   else if (position >= center_end)
-   {
-    drive_robot(0.1, -0.5); // move to the right
-   }
-   else if (position == -1)
-   {
-    drive_robot(0.0, 0.0); // stop robot
-   }
+   
    
   
 }
