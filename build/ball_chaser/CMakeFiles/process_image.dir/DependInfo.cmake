@@ -20,6 +20,8 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/robond/workspace/catkin_ws/devel/include"
   "/opt/ros/kinetic/include"
   "/opt/ros/kinetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
+  "/opt/ros/kinetic/include/opencv-3.2.0-dev"
+  "/opt/ros/kinetic/include/opencv-3.2.0-dev/opencv"
   "/home/robond/workspace/catkin_ws/src/ball_chaser/include"
   )
 
